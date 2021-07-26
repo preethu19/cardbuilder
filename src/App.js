@@ -400,8 +400,8 @@ export default function App() {
             />
           )
         }
-        else if(eachShape.name=="line"){
-          {/* console.log(eachShape); */}
+        {/* else if(eachShape.name=="line"){
+          
           return(
             <Line
               key={i}
@@ -416,11 +416,11 @@ export default function App() {
             />
           )
          
-        }
+        } */}
       })
       }
       
-      {/* {lines.map((line, i) => (
+      {lines.map((line, i) => (
             <Line
               key={i}
               points={line.points}
@@ -432,7 +432,7 @@ export default function App() {
                 line.tool === 'eraser' ? 'destination-out' : 'source-over'
               }
             />
-          ))} */}
+          ))}
 
         <Circle
           name="draggableCircle1"
