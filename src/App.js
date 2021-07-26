@@ -548,23 +548,16 @@ export default function App() {
         <input type="button" value="Pencil" style={tool=='pen' && useTool?{backgroundColor: "aqua"}:null} onClick={()=>{setTool('pen'); setUseTool(!useTool)}}/>
         <input type="button" value="Eraser" style={tool=='eraser' && useTool?{backgroundColor: "aqua"}:null} onClick={()=>{setTool('eraser'); setUseTool(!useTool)}} />
         </div>
+        {textEdit?
+          <textarea value={editShape.text} onChange={onEdit}></textarea>
+          :null
+        }
      </Html>
         
       </Layer>
     </Stage>
-    {textEdit?
-      <textarea value={editShape.text} onChange={onEdit}></textarea>
-      :null
-    }
-    <select
-        value={tool}
-        onChange={(e) => {
-          setTool(e.target.value);
-        }}
-      >
-        <option value="pen">Pen</option>
-        <option value="eraser">Eraser</option>
-      </select>
+    
+    
     </>
   );
 }
