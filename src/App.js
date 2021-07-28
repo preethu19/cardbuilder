@@ -312,6 +312,8 @@ let history = [{shapes: [], lines:[]}]
 let historyStep = 0;
 
 
+
+
 export default function App() {
   const [circles, setCircles] = useState([]);
   const [rectangles, setRectangles] = useState([]);
@@ -324,7 +326,34 @@ export default function App() {
   const isDrawing = React.useRef(false);
   const [useTool, setUseTool] = useState(false)
   const [handleDraw, setHandleDraw] = useState(false)
+
   
+const gridWidth = window.innerWidth/10
+const gridHeight = window.innerHeight/5
+
+const linesA = []
+const linesB = []
+
+  for (let i = 0; i < window.innerHeight; i=i+gridHeight) {
+    linesA.push(
+      <Line
+        strokeWidth={0.5}
+        stroke={'gray'}
+        points={[0, i, window.innerWidth, i]}
+      />
+    )
+  }
+  for (let i = 0; i < window.innerWidth; i=i+gridWidth) {
+    linesB.push(
+      <Line
+        strokeWidth={0.5}
+        stroke={'gray'}
+        points={[i, 0, i, window.innerHeight]}
+      />
+    )
+  }
+  
+
 
   const handleUndo = () => {
     console.log('undo')
@@ -452,10 +481,26 @@ export default function App() {
     historyStep += 1;
   }
 
+  const handleSave = () => {
+    const data = JSON.stringify([shapes, lines])
+    localStorage.setItem('data', data);
+  }
+
+  useEffect(()=>{
+    const data = JSON.parse(localStorage.getItem('data'));
+    if(data){
+      setLines(data[1])
+      setShapes(data[0])
+      history = [{shapes: data[0], lines:data[1]}];
+      // historyStep += 1;
+    }
+  }, [])
+
   
   return (
     <>
     <Stage 
+        
         width={window.innerWidth} 
         height={window.innerHeight} 
         ref={stageRef} 
@@ -465,11 +510,15 @@ export default function App() {
         onMousemove={handleMouseMove}
         onTouchMove={handleMouseMove}
         onMouseup={handleMouseUp}
+
       >
       <Layer>
         
         
        
+        {linesA}
+        {linesB}
+
 
       {shapes.map((eachShape, i)=> {
         if(eachShape.name=="rectangle"){
@@ -614,7 +663,8 @@ export default function App() {
             
             />
           ))} */}
-
+        
+      
         <Circle
           name="draggableCircle1"
           x={50}
@@ -744,6 +794,7 @@ export default function App() {
         <div>
         <input type="button" value="Undo" onClick={handleUndo}/>
         <input type="button" value="Redo" onClick={handleRedo} />
+        <input type="button" value="Save" onClick={handleSave} />
         <br />
         <input type="button" value="Pencil" style={tool=='pen' && useTool?{backgroundColor: "aqua"}:null} onClick={()=>{setTool('pen'); setUseTool(!useTool)}}/>
         {/* <input type="button" value="Eraser" style={tool=='eraser' && useTool?{backgroundColor: "aqua"}:null} onClick={()=>{setTool('eraser'); setUseTool(!useTool)}} /> */}
@@ -753,8 +804,7 @@ export default function App() {
           :null
         }
      </Html>
-        
-      </Layer>
+        </Layer>
     </Stage>
     
     
