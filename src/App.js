@@ -43,7 +43,8 @@ const Rectangle = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool
           const node = shapeRef.current;
           const scaleX = node.scaleX();
           const scaleY = node.scaleY();
-
+          const matrix = node.getAbsoluteTransform().getMatrix();
+          console.log(node.rotation())
           // we will reset it back
           node.scaleX(1);
           node.scaleY(1);
@@ -54,6 +55,7 @@ const Rectangle = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool
             // set minimal value
             width: Math.max(5, node.width() * scaleX),
             height: Math.max(node.height() * scaleY),
+            rotation: node.rotation(),
           });
         }}
       />
@@ -123,7 +125,7 @@ const Circles = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool }
             y: node.y(),
             // set minimal value
             radius: Math.max(node.radius() * scaleX, node.radius() * scaleY),
-            
+            rotation: node.rotation(),
           });
         }}
       />
@@ -198,6 +200,7 @@ const Texts = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool }) 
             
             width: Math.max(5, node.width() * scaleX),
             height: Math.max(node.height() * scaleY),
+            rotation: node.rotation(),
           });
         }}
       />
@@ -285,7 +288,8 @@ const Lines = ({ shapeProps, isSelected, onSelect, onMove, onChange, points, too
             // x: node.x(),
             // y: node.y(),
             // set minimal value
-            points: newPoints
+            points: newPoints,
+            rotation: node.rotation(),
             // width: Math.max(5, node.width() * scaleX),
             // height: Math.max(node.height() * scaleY),
           });
