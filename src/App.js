@@ -618,7 +618,7 @@ export default function App() {
         <Circle
           name="draggableCircle1"
           x={50}
-          y={50}
+          y={70}
           radius={25}
           stroke="black"
           id="circle1"
@@ -626,7 +626,7 @@ export default function App() {
         <Circle
           name="draggableCircle"
           x={50}
-          y={50}
+          y={70}
           radius={25}
           stroke="black"
           draggable={!useTool}
@@ -651,7 +651,7 @@ export default function App() {
             // notice the dot (.) before "draggableCircle"
             var stage = stageRef.current;
             var draggableCircle = stage.findOne(".draggableCircle");
-            draggableCircle.position({ x: 50, y: 50 });
+            draggableCircle.position({ x: 50, y: 70 });
             history = history.slice(0, historyStep + 1);
             history = history.concat([{shapes: [...shapes, pos], lines:lines}]);
             historyStep += 1;
@@ -660,7 +660,7 @@ export default function App() {
 
       <Rect
         x= {25}
-        y= {80}
+        y= {100}
         width= {50}
         height= {50}
         stroke="black"
@@ -669,7 +669,7 @@ export default function App() {
       <Rect
         name="draggableRect"
         x= {25}
-        y= {80}
+        y= {100}
         width= {50}
         height= {50}
         stroke="black"
@@ -694,7 +694,7 @@ export default function App() {
             // notice the dot (.) before "draggableCircle"
             var stage = stageRef.current;
             var draggableRectangle = stage.findOne(".draggableRect");
-            draggableRectangle.position({ x: 25, y: 80 });
+            draggableRectangle.position({ x: 25, y: 100 });
             history = history.slice(0, historyStep + 1);
             history = history.concat([{shapes: [...shapes, pos], lines:lines}]);
             historyStep += 1;
@@ -706,12 +706,12 @@ export default function App() {
           width={40}
           height={100}
           x={35}
-          y={140}
+          y={160}
         />
         <Text
           name="draggableText"
           x={35}
-          y={140}
+          y={160}
           text="T"
           fontSize={50}
           width={40}
@@ -734,7 +734,7 @@ export default function App() {
             // notice the dot (.) before "draggableCircle"
             var stage = stageRef.current;
             var draggableText = stage.findOne(".draggableText");
-            draggableText.position({ x: 35, y: 140 });
+            draggableText.position({ x: 35, y: 160 });
             history = history.slice(0, historyStep + 1);
             history = history.concat([{shapes: [...shapes, pos], lines:lines}]);
             historyStep += 1;
