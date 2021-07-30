@@ -330,33 +330,70 @@ export default function App() {
   const isDrawing = React.useRef(false);
   const [useTool, setUseTool] = useState(false)
   const [handleDraw, setHandleDraw] = useState(false)
+  const [stage, setStage] = useState({
+    scale: 1,
+    x: 0,
+    y: 0
+  });
 
+  const handleWheel = (e) => {
+    e.evt.preventDefault();
+
+    const scaleBy = 1.2;
+    const stage = e.target.getStage();
+    const oldScale = stage.scaleX();
+    const mousePointTo = {
+      x: stage.getPointerPosition().x / oldScale - stage.x() / oldScale,
+      y: stage.getPointerPosition().y / oldScale - stage.y() / oldScale
+    };
+
+    const newScale = e.evt.deltaY < 0 ? oldScale * scaleBy : oldScale / scaleBy;
+    const newX = (stage.getPointerPosition().x / newScale - mousePointTo.x) * newScale;
+    const newY = (stage.getPointerPosition().y / newScale - mousePointTo.y) * newScale;
+    // console.log(oldScale, newScale);
+    // console.log(newX, newY)
+    // console.log(e.evt.deltaY)
+    if((newScale<1 || newX>=0 || newY>=0)){
+      setStage({
+        scale: 1,
+        x: 0,
+        y: 0
+      });
+      gridLines(10, 5)
+    }
+    else{
+      setStage({
+        scale: newScale,
+        x: newX,
+        y: newY
+      });
+      gridLines(20*parseInt(newScale), 10*parseInt(newScale))
+    }
+    
+  };
   
-const gridWidth = window.innerWidth/10
-const gridHeight = window.innerHeight/5
+  const [linesA, setLinesA] = useState([])
+  const [linesB, setLinesB] = useState([])
+  const gridLines = (a, b) => {
+    const gridWidth = window.innerWidth/a
+    const gridHeight = window.innerHeight/b
+    setLinesA([])
+    setLinesB([])
 
-const linesA = []
-const linesB = []
+      for (let i = 0; i < window.innerHeight; i=i+gridHeight) {
+        setLinesA((prevData)=>(
+          [...prevData, [0, i, window.innerWidth, i] ]
+        )
+        )
+      }
+      for (let i = 0; i < window.innerWidth; i=i+gridWidth) {
+        setLinesB((prevData)=>(
+          [...prevData, [i, 0, i, window.innerHeight]]
+        )
+        )
+  }
 
-  for (let i = 0; i < window.innerHeight; i=i+gridHeight) {
-    linesA.push(
-      <Line
-        strokeWidth={0.5}
-        stroke={'gray'}
-        points={[0, i, window.innerWidth, i]}
-      />
-    )
-  }
-  for (let i = 0; i < window.innerWidth; i=i+gridWidth) {
-    linesB.push(
-      <Line
-        strokeWidth={0.5}
-        stroke={'gray'}
-        points={[i, 0, i, window.innerHeight]}
-      />
-    )
-  }
-  
+}
 
 
   const handleUndo = () => {
@@ -498,6 +535,7 @@ const linesB = []
       history = [{shapes: data[0], lines:data[1]}];
       // historyStep += 1;
     }
+    gridLines(10, 5)
   }, [])
 
   
@@ -514,14 +552,36 @@ const linesB = []
         onMousemove={handleMouseMove}
         onTouchMove={handleMouseMove}
         onMouseup={handleMouseUp}
-
+        onWheel={handleWheel}
+      scaleX={stage.scale}
+      scaleY={stage.scale}
+      x={stage.x}
+      y={stage.y}
       >
       <Layer>
         
         
        
-        {linesA}
-        {linesB}
+        {linesA.map((eachLine, i)=>{
+          return (
+            <Line
+            key={i}
+            strokeWidth={1}
+            stroke={'gray'}
+            points={eachLine}
+          />
+          )
+        })}
+        {linesB.map((eachLine, i)=>{
+          return (
+            <Line
+            key={i}
+            strokeWidth={1}
+            stroke={'gray'}
+            points={eachLine}
+          />
+          )
+        })}
 
 
       {shapes.map((eachShape, i)=> {
