@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/cardbuilder/static/css/main.8e77ad1a.chunk.css",
-    "main.js": "/cardbuilder/static/js/main.a8b0980d.chunk.js",
-    "main.js.map": "/cardbuilder/static/js/main.a8b0980d.chunk.js.map",
+    "main.js": "/cardbuilder/static/js/main.f7d53982.chunk.js",
+    "main.js.map": "/cardbuilder/static/js/main.f7d53982.chunk.js.map",
     "runtime-main.js": "/cardbuilder/static/js/runtime-main.8a4a8595.js",
     "runtime-main.js.map": "/cardbuilder/static/js/runtime-main.8a4a8595.js.map",
     "static/js/2.f95244c3.chunk.js": "/cardbuilder/static/js/2.f95244c3.chunk.js",
@@ -15,6 +15,6 @@
     "static/js/runtime-main.8a4a8595.js",
     "static/js/2.f95244c3.chunk.js",
     "static/css/main.8e77ad1a.chunk.css",
-    "static/js/main.a8b0980d.chunk.js"
+    "static/js/main.f7d53982.chunk.js"
   ]
 }
