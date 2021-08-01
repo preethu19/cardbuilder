@@ -1,7 +1,7 @@
 import "./App.css";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Stage, Layer, Circle, Text, Ellipse, Rect, Transformer, Line } from "react-konva";
+import { Stage, Layer, Circle, Text, Ellipse, Rect, Transformer, Line, Group } from "react-konva";
 import { v4 as uuid } from 'uuid';
 import { Html } from "react-konva-utils";
 
@@ -29,32 +29,105 @@ const Rectangle = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool
         // onTouchStart={onMove}
         onDragEnd={(e) => {
           
+          const gridWidth = window.innerWidth/5
+          const gridHeight = window.innerHeight/10
+          const rectWidth = shapeProps.width
+          const rectHeight = shapeProps.height
+          
+          let newX = e.target.x()
+          let newX1 = Math.floor(newX/gridWidth)*gridWidth
+          let newX2 = Math.ceil((newX+rectWidth)/gridWidth)*gridWidth
+          
+          if(((newX-newX1)<=(newX2-newX-rectWidth)) && ((newX-newX1)<=10)){
+            
+            newX = newX1
+          }
+          else if((newX2-newX-rectWidth)<=10){
+            
+            newX = newX2 - rectWidth
+          }
+          
+          let newY = e.target.y()
+          let newY1 = Math.floor((newY)/gridHeight)*gridHeight
+          let newY2 = Math.ceil((newY+rectHeight)/gridHeight)*gridHeight
+          
+          
+          if(((newY-newY1)<=(newY2-newY-rectHeight)) && ((newY-newY1)<=10)){
+            
+            newY = newY1
+          }
+          else if((newY2-newY-rectHeight)<=10){
+            
+            newY = newY2 - rectHeight
+          }
           onChange({
             ...shapeProps,
-            x: e.target.x(),
-            y: e.target.y(),
+            x: newX,
+            y: newY
           });
         }}
         onTransformEnd={(e) => {
+          
+          const node = shapeRef.current;
+          const scaleX = node.scaleX();
+          const scaleY = node.scaleY();
+          // we will reset it back
+          node.scaleX(1);
+          node.scaleY(1);
+          const gridWidth = window.innerWidth/5
+          const gridHeight = window.innerHeight/10
+          const rectWidth = node.width() * scaleX
+          const rectHeight = node.height() * scaleY
+          
+          let newX = e.target.x()
+          // let newX_ = newX+(rectWidth*Math.cos(node.rotation()))
+          let newX1 = Math.floor(newX/gridWidth)*gridWidth
+          let newX2 = Math.ceil((newX+rectWidth)/gridWidth)*gridWidth
+
+          // console.log(newX)
+          // console.log(newX_)
+
+          if(((newX-newX1)<=(newX2-newX-rectWidth)) && ((newX-newX1)<=10)){
+            
+            newX = newX1
+          }
+          else if((newX2-newX-rectWidth)<=10){
+            
+            newX = newX2 - rectWidth
+          }
+          
+          let newY = e.target.y()
+          // let newY_ = newY + (rectWidth*Math.sin(node.rotation()))
+          let newY1 = Math.floor((newY)/gridHeight)*gridHeight
+          let newY2 = Math.ceil((newY+rectHeight)/gridHeight)*gridHeight
+
+          
+          // console.log(newY)
+          // console.log(newY_)
+          
+          if(((newY-newY1)<=(newY2-newY-rectHeight)) && ((newY-newY1)<=10)){
+            
+            newY = newY1
+          }
+          else if((newY2-newY-rectHeight)<=10){
+            
+            newY = newY2 - rectHeight
+          }
           // transformer is changing scale of the node
           // and NOT its width or height
           // but in the store we have only width and height
           // to match the data better we will reset scale on transform end
-          const node = shapeRef.current;
-          const scaleX = node.scaleX();
-          const scaleY = node.scaleY();
-          const matrix = node.getAbsoluteTransform().getMatrix();
-          console.log(node.rotation())
-          // we will reset it back
-          node.scaleX(1);
-          node.scaleY(1);
+          
+          
+          
           onChange({
             ...shapeProps,
-            x: node.x(),
-            y: node.y(),
+            x: newX,
+            y: newY,
+           
             // set minimal value
-            width: Math.max(5, node.width() * scaleX),
-            height: Math.max(node.height() * scaleY),
+            width: node.width() * scaleX,
+            height: node.height() * scaleY,
             rotation: node.rotation(),
           });
         }}
@@ -100,11 +173,35 @@ const Circles = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool }
         // onDragStart={onMove}
         // onTouchStart={onMove}
         onDragEnd={(e) => {
-          
+          const gridWidth = window.innerWidth/5
+            const gridHeight = window.innerHeight/10
+            const circRadius = shapeProps.radius
+            let newX = e.target.x()
+            let newX1 = Math.floor((newX-circRadius)/gridWidth)*gridWidth
+            let newX2 = Math.ceil((newX+circRadius)/gridWidth)*gridWidth
+            // console.log(newX1, newX, newX2)
+            // console.log(newX-newX1+circRadius, newX, newX2-newX-circRadius)
+            if(((newX-newX1-circRadius)<=(newX2-newX-circRadius)) && ((newX-newX1-circRadius)<=10)){
+              newX = newX1 + circRadius
+            }
+            else if((newX2-newX-circRadius)<=10){
+              newX = newX2 - circRadius
+            }
+            let newY = e.target.y()
+            let newY1 = Math.floor((newY-circRadius)/gridHeight)*gridHeight
+            let newY2 = Math.ceil((newY+circRadius)/gridHeight)*gridHeight
+            // console.log(newY1, newY, newY2)
+            // console.log(newY-newY1+circRadius, newY, newY2-newY-circRadius)
+            if(((newY-newY1-circRadius)<=(newY2-newY-circRadius)) && ((newY-newY1-circRadius)<=10)){
+              newY = newY1 + circRadius
+            }
+            else if((newY2-newY-circRadius)<=10){
+              newY = newY2 - circRadius
+            }
           onChange({
             ...shapeProps,
-            x: e.target.x(),
-            y: e.target.y(),
+            x: newX,
+            y: newY,
           });
         }}
         onTransformEnd={(e) => {
@@ -119,12 +216,40 @@ const Circles = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool }
           // we will reset it back
           node.scaleX(1);
           node.scaleY(1);
+
+          const gridWidth = window.innerWidth/5
+          const gridHeight = window.innerHeight/10
+          const circRadius = Math.max(node.radius() * scaleX, node.radius() * scaleY)
+          let newX = e.target.x()
+          let newX1 = Math.floor((newX-circRadius)/gridWidth)*gridWidth
+          let newX2 = Math.ceil((newX+circRadius)/gridWidth)*gridWidth
+          
+          // console.log(newX1, newX, newX2)
+          // console.log(newX-newX1+circRadius, newX, newX2-newX-circRadius)
+          if(((newX-newX1-circRadius)<=(newX2-newX-circRadius)) && ((newX-newX1-circRadius)<=10)){
+            newX = newX1 + circRadius
+          }
+          else if((newX2-newX-circRadius)<=10){
+            newX = newX2 - circRadius
+          }
+          let newY = e.target.y()
+          let newY1 = Math.floor((newY-circRadius)/gridHeight)*gridHeight
+          let newY2 = Math.ceil((newY+circRadius)/gridHeight)*gridHeight
+          // console.log(newY1, newY, newY2)
+          // console.log(newY-newY1+circRadius, newY, newY2-newY-circRadius)
+          if(((newY-newY1-circRadius)<=(newY2-newY-circRadius)) && ((newY-newY1-circRadius)<=10)){
+            newY = newY1 + circRadius
+          }
+          else if((newY2-newY-circRadius)<=10){
+            newY = newY2 - circRadius
+          }
+
           onChange({
             ...shapeProps,
-            x: node.x(),
-            y: node.y(),
+            x: newX,
+            y: newY,
             // set minimal value
-            radius: Math.max(node.radius() * scaleX, node.radius() * scaleY),
+            radius: circRadius,
             rotation: node.rotation(),
           });
         }}
@@ -132,6 +257,7 @@ const Circles = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool }
       {isSelected && (
         <Transformer
           ref={trRef}
+          rotateEnabled={false}
           boundBoxFunc={(oldBox, newBox) => {
             // limit resize
             if (newBox.radius < 5) {
@@ -173,11 +299,41 @@ const Texts = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool }) 
         // onDragStart={onMove}
         // onTouchStart={onMove}
         onDragEnd={(e) => {
+          const gridWidth = window.innerWidth/5
+          const gridHeight = window.innerHeight/10
+          const rectWidth = shapeProps.width
+          const rectHeight = shapeProps.height
           
+          let newX = e.target.x()
+          let newX1 = Math.floor(newX/gridWidth)*gridWidth
+          let newX2 = Math.ceil((newX+rectWidth)/gridWidth)*gridWidth
+          
+          if(((newX-newX1)<=(newX2-newX-rectWidth)) && ((newX-newX1)<=10)){
+            
+            newX = newX1
+          }
+          else if((newX2-newX-rectWidth)<=10){
+            
+            newX = newX2 - rectWidth
+          }
+          
+          let newY = e.target.y()
+          let newY1 = Math.floor((newY)/gridHeight)*gridHeight
+          let newY2 = Math.ceil((newY+rectHeight)/gridHeight)*gridHeight
+          
+          
+          if(((newY-newY1)<=(newY2-newY-rectHeight)) && ((newY-newY1)<=10)){
+            
+            newY = newY1
+          }
+          else if((newY2-newY-rectHeight)<=10){
+            
+            newY = newY2 - rectHeight
+          }
           onChange({
             ...shapeProps,
-            x: e.target.x(),
-            y: e.target.y()
+            x: newX,
+            y: newY
           });
         }}
         onTransformEnd={(e) => {
@@ -192,14 +348,45 @@ const Texts = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool }) 
           // we will reset it back
           node.scaleX(1);
           node.scaleY(1);
+          const gridWidth = window.innerWidth/5
+          const gridHeight = window.innerHeight/10
+          const rectWidth = node.width() * scaleX
+          const rectHeight = node.height() * scaleY
+          
+          let newX = e.target.x()
+          let newX1 = Math.floor(newX/gridWidth)*gridWidth
+          let newX2 = Math.ceil((newX+rectWidth)/gridWidth)*gridWidth
+          
+          if(((newX-newX1)<=(newX2-newX-rectWidth)) && ((newX-newX1)<=10)){
+            
+            newX = newX1
+          }
+          else if((newX2-newX-rectWidth)<=10){
+            
+            newX = newX2 - rectWidth
+          }
+          
+          let newY = e.target.y()
+          let newY1 = Math.floor((newY)/gridHeight)*gridHeight
+          let newY2 = Math.ceil((newY+rectHeight)/gridHeight)*gridHeight
+          
+          
+          if(((newY-newY1)<=(newY2-newY-rectHeight)) && ((newY-newY1)<=10)){
+            
+            newY = newY1
+          }
+          else if((newY2-newY-rectHeight)<=10){
+            
+            newY = newY2 - rectHeight
+          }
           onChange({
             ...shapeProps,
-            x: node.x(),
-            y: node.y(),
+            x: newX,
+            y: newY,
             // set minimal value
             
-            width: Math.max(5, node.width() * scaleX),
-            height: Math.max(node.height() * scaleY),
+            width: node.width() * scaleX,
+            height: node.height() * scaleY,
             rotation: node.rotation(),
           });
         }}
@@ -241,7 +428,7 @@ const Lines = ({ shapeProps, isSelected, onSelect, onMove, onChange, points, too
     <React.Fragment>
     
       <Line
-       
+        
         onDblClick={onSelect}
         onDblTap={onSelect}
         ref={shapeRef}
@@ -294,7 +481,7 @@ const Lines = ({ shapeProps, isSelected, onSelect, onMove, onChange, points, too
             // height: Math.max(node.height() * scaleY),
           });
         }}
-      />
+      />   
       {isSelected && (
         <Transformer
           ref={trRef}
@@ -319,8 +506,7 @@ let historyStep = 0;
 
 
 export default function App() {
-  const [circles, setCircles] = useState([]);
-  const [rectangles, setRectangles] = useState([]);
+  
   const [shapes, setShapes] = useState([]);
   const [selectedId, selectShape] = useState(null);
   const [textEdit, setTextEdit] = useState(false)
@@ -359,7 +545,7 @@ export default function App() {
         x: 0,
         y: 0
       });
-      gridLines(10, 5)
+      gridLines(5, 10)
     }
     else{
       setStage({
@@ -367,7 +553,7 @@ export default function App() {
         x: newX,
         y: newY
       });
-      gridLines(20*parseInt(newScale), 10*parseInt(newScale))
+      gridLines(10*parseInt(newScale), 20*parseInt(newScale))
     }
     
   };
@@ -380,13 +566,13 @@ export default function App() {
     setLinesA([])
     setLinesB([])
 
-      for (let i = 0; i < window.innerHeight; i=i+gridHeight) {
+      for (let i = 0; i <= window.innerHeight; i=i+gridHeight) {
         setLinesA((prevData)=>(
           [...prevData, [0, i, window.innerWidth, i] ]
         )
         )
       }
-      for (let i = 0; i < window.innerWidth; i=i+gridWidth) {
+      for (let i = 0; i <= window.innerWidth; i=i+gridWidth) {
         setLinesB((prevData)=>(
           [...prevData, [i, 0, i, window.innerHeight]]
         )
@@ -419,6 +605,8 @@ export default function App() {
   }
 
   const handleMouseDown = (e) => {
+    
+    // console.log(e.target.getStage().getPointerPosition())
     if(useTool){
       isDrawing.current = true;
       // const transform = e.target.getAbsoluteTransform().copy()
@@ -535,7 +723,7 @@ export default function App() {
       history = [{shapes: data[0], lines:data[1]}];
       // historyStep += 1;
     }
-    gridLines(10, 5)
+    gridLines(5, 10)
   }, [])
 
   
@@ -601,10 +789,12 @@ export default function App() {
               onChange={(newAttrs) => {
                 const rects = shapes.slice();
                 rects[i] = newAttrs;
-                setShapes(rects);
+                
                 history = history.slice(0, historyStep + 1);
                 history = history.concat([{shapes: rects, lines:lines}]);
                 historyStep += 1;
+                onDelete(eachShape);
+                setShapes(rects);
               }}
               useTool={useTool}
             />
@@ -693,40 +883,7 @@ export default function App() {
         }
       })
       }
-      {/* <Line
-             x={200}
-             y={300}
-              points={[100, 100, 200, 200]}
-              stroke="#df4b26"
-              strokeWidth={5}
-              tension={0.5}
-              lineCap="round"
-              globalCompositeOperation={
-                'source-over'
-              }
-            /> */}
-      {/* {lines.map((line, i) => (
-            <Lines
-              key={i}
-              points={line.points}
-              tool={line.tool}
-              shapeProps={line}
-              isSelected={line.id === selectedId}
-              onSelect={() => {
-                setUseTool(false)
-                onDelete(line);
-                selectShape(line.id);
-                
-              }}
-              onMove={()=>onDelete(line)}
-              onChange={(newAttrs) => {
-                const rects = lines.slice();
-                rects[i] = newAttrs;
-                setLines(rects);
-              }}
-            
-            />
-          ))} */}
+      
         
       
         <Circle
@@ -749,18 +906,41 @@ export default function App() {
           // onTap={()=>setUseTool(false)}
           // onDragStart={()=>setUseTool(false)}
           onDragEnd={(e) => {
-            
-            
+            const gridWidth = window.innerWidth/5
+            const gridHeight = window.innerHeight/10
+            const circRadius = 25
+            let newX = e.target.x()
+            let newX1 = Math.floor((newX-circRadius)/gridWidth)*gridWidth
+            let newX2 = Math.ceil((newX+circRadius)/gridWidth)*gridWidth
+            // console.log(newX1, newX, newX2)
+            // console.log(newX-newX1+circRadius, newX, newX2-newX-circRadius)
+            if(((newX-newX1-circRadius)<=(newX2-newX-circRadius)) && ((newX-newX1-circRadius)<=10)){
+              newX = newX1 + circRadius
+            }
+            else if((newX2-newX-circRadius)<=10){
+              newX = newX2 - circRadius
+            }
+            let newY = e.target.y()
+            let newY1 = Math.floor((newY-circRadius)/gridHeight)*gridHeight
+            let newY2 = Math.ceil((newY+circRadius)/gridHeight)*gridHeight
+            // console.log(newY1, newY, newY2)
+            // console.log(newY-newY1+circRadius, newY, newY2-newY-circRadius)
+            if(((newY-newY1-circRadius)<=(newY2-newY-circRadius)) && ((newY-newY1-circRadius)<=10)){
+              newY = newY1 + circRadius
+            }
+            else if((newY2-newY-circRadius)<=10){
+              newY = newY2 - circRadius
+            }
             // push new circle to view
             // note that we must push circle first before returning draggable circle
             // because e.target.x returns draggable circle's positions
-            const pos = { x: e.target.x(), y: e.target.y(), radius: 25, stroke:"black", id: uuid(), fill: "red", name:"circle" }
+            const pos = { x: newX, y: newY, radius: 25, stroke:"black", id: uuid(), fill: "red", name:"circle" }
             
             setShapes((prevCircles) => [
               ...prevCircles,
               pos
             ]);
-            console.log(shapes)
+            
             // return draggable circle to original position
             // notice the dot (.) before "draggableCircle"
             var stage = stageRef.current;
@@ -794,11 +974,38 @@ export default function App() {
         // onTap={()=>setUseTool(false)}
         // onDragStart={()=>setUseTool(false)}
         onDragEnd={(e) => {
-          
+            const gridWidth = window.innerWidth/5
+            const gridHeight = window.innerHeight/10
+            const rectWidth = 50
+            const rectHeight = 50
+
+            let newX = e.target.x()
+            let newX1 = Math.floor(newX/gridWidth)*gridWidth
+            let newX2 = Math.ceil((newX+rectWidth)/gridWidth)*gridWidth
+            console.log(newX1, newX, newX2)
+            if(((newX-newX1)<=(newX2-newX-rectWidth)) && ((newX-newX1)<=10)){
+              newX = newX1
+            }
+            else if((newX2-newX-rectWidth)<=10){
+              newX = newX2 - rectWidth
+            }
+            
+            let newY = e.target.y()
+            let newY1 = Math.floor((newY)/gridHeight)*gridHeight
+            let newY2 = Math.ceil((newY+rectHeight)/gridHeight)*gridHeight
+            
+            console.log(newY1, newY, newY2)
+            if(((newY-newY1)<=(newY2-newY-rectHeight)) && ((newY-newY1)<=10)){
+              newY = newY1
+            }
+            else if((newY2-newY-rectHeight)<=10){
+              newY = newY2 - rectHeight
+            }
+           
             // push new circle to view
             // note that we must push circle first before returning draggable circle
             // because e.target.x returns draggable circle's positions
-            const pos = { x: e.target.x(), y: e.target.y(), stroke:"black", width: 50, height: 50, id: uuid(), fill: "green", name:"rectangle"}
+            const pos = { x: newX, y: newY, stroke:"black", width: rectWidth, height: rectHeight, id: uuid(), fill: "green", name:"rectangle", rotation:0}
             setShapes((prevRectangles) => [
               ...prevRectangles,
               pos
@@ -835,10 +1042,38 @@ export default function App() {
           // onTap={()=>setUseTool(false)}
           // onDragStart={()=>setUseTool(false)}
           onDragEnd={(e) => {
+            const gridWidth = window.innerWidth/5
+            const gridHeight = window.innerHeight/10
+            const rectWidth = 40
+            const rectHeight = 100
+
+            let newX = e.target.x()
+            let newX1 = Math.floor(newX/gridWidth)*gridWidth
+            let newX2 = Math.ceil((newX+rectWidth)/gridWidth)*gridWidth
+            console.log(newX1, newX, newX2)
+            if(((newX-newX1)<=(newX2-newX-rectWidth)) && ((newX-newX1)<=10)){
+              newX = newX1
+            }
+            else if((newX2-newX-rectWidth)<=10){
+              newX = newX2 - rectWidth
+            }
+            
+            let newY = e.target.y()
+            let newY1 = Math.floor((newY)/gridHeight)*gridHeight
+            let newY2 = Math.ceil((newY+rectHeight)/gridHeight)*gridHeight
+            
+            console.log(newY1, newY, newY2)
+            if(((newY-newY1)<=(newY2-newY-rectHeight)) && ((newY-newY1)<=10)){
+              newY = newY1
+            }
+            else if((newY2-newY-rectHeight)<=10){
+              newY = newY2 - rectHeight
+            }
+           
             // push new circle to view
             // note that we must push circle first before returning draggable circle
             // because e.target.x returns draggable circle's positions
-            const pos = { x: e.target.x(), y: e.target.y(), id: uuid(), text: "T", width: 40, textEditVisible:true, height:100, fontSize: 50, name:"text"}
+            const pos = { x: newX, y: newY, id: uuid(), text: "T", width: 40, textEditVisible:true, height:100, fontSize: 50, name:"text"}
             setShapes((prevTexts) => [
               ...prevTexts,
               pos
