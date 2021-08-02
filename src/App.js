@@ -6,7 +6,7 @@ import { v4 as uuid } from 'uuid';
 import { Html } from "react-konva-utils";
 
 
-const Rectangle = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool }) => {
+const Rectangle = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool, stage }) => {
   const shapeRef = React.useRef();
   const trRef = React.useRef();
 
@@ -17,6 +17,21 @@ const Rectangle = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool
       trRef.current.getLayer().batchDraw();
     }
   }, [isSelected]);
+
+  function rotatePoint(pt, a, l){
+
+    var angle = a * (Math.PI/180); // Convert to radians
+  
+    var rotatedX = (pt.x) + (Math.cos(angle) * l);
+  
+    var rotatedY = (pt.y) + (Math.sin(angle) * l);  
+  
+    return {x: rotatedX, y: rotatedY};
+  
+  }
+
+  
+
   return (
     <React.Fragment>
       <Rect
@@ -27,39 +42,110 @@ const Rectangle = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool
         draggable={!useTool && isSelected}
         // onDragStart={onMove}
         // onTouchStart={onMove}
+        onDragMove={console.log(shapeProps.x, shapeProps.y)}
         onDragEnd={(e) => {
           
-          const gridWidth = window.innerWidth/5
-          const gridHeight = window.innerHeight/10
+          const gridWidth = window.innerWidth/(5*parseInt(stage))
+          const gridHeight = window.innerHeight/(10*parseInt(stage))
           const rectWidth = shapeProps.width
           const rectHeight = shapeProps.height
+          const rectRotation = shapeProps.rotation
           
           let newX = e.target.x()
-          let newX1 = Math.floor(newX/gridWidth)*gridWidth
-          let newX2 = Math.ceil((newX+rectWidth)/gridWidth)*gridWidth
+          let pos1 = {x: e.target.x(), y: e.target.y()}
+          let pos2 = rotatePoint({x: pos1.x, y: pos1.y}, rectRotation, rectWidth)
+          let pos4 = rotatePoint({x: pos1.x, y: pos1.y}, rectRotation + 90, rectHeight)
+          let pos3 = rotatePoint({x: pos4.x, y: pos4.y}, rectRotation, rectWidth)
+
+          if(rectRotation>=0 && rectRotation<90){
+              let newX1 = Math.floor(pos4.x/gridWidth)*gridWidth
+              let newX2 = Math.ceil(pos2.x/gridWidth)*gridWidth
+              if(((pos4.x-newX1)<=(newX2-pos2.x)) && ((pos4.x-newX1)<=10)){
+                newX = newX - (pos4.x - newX1)
+              }
+              else if((newX2-pos2.x)<=10){
+                newX = newX + (newX2 - pos2.x)
+              }
+          }
+          else if(rectRotation>=90 && rectRotation<180){
+              let newX1 = Math.floor(pos3.x/gridWidth)*gridWidth
+              let newX2 = Math.ceil(pos1.x/gridWidth)*gridWidth
+              if(((pos3.x-newX1)<=(newX2-pos1.x)) && ((pos3.x-newX1)<=10)){
+                newX = newX - (pos3.x - newX1)
+              }
+              else if((newX2-pos1.x)<=10){
+                newX = newX + (newX2 - pos1.x)
+              }
+          }
+          else if(rectRotation>=-180 && rectRotation<-90){
+              let newX1 = Math.floor(pos2.x/gridWidth)*gridWidth
+              let newX2 = Math.ceil(pos4.x/gridWidth)*gridWidth
+              if(((pos2.x-newX1)<=(newX2-pos4.x)) && ((pos2.x-newX1)<=10)){
+                newX = newX - (pos2.x - newX1)
+              }
+              else if((newX2-pos4.x)<=10){
+                newX = newX + (newX2 - pos4.x)
+              }
+          }
+          else if(rectRotation>=-90 && rectRotation<0){
+              let newX1 = Math.floor(pos1.x/gridWidth)*gridWidth
+              let newX2 = Math.ceil(pos3.x/gridWidth)*gridWidth
+              if(((pos1.x-newX1)<=(newX2-pos3.x)) && ((pos1.x-newX1)<=10)){
+                newX = newX - (pos1.x - newX1)
+              }
+              else if((newX2-pos3.x)<=10){
+                newX = newX + (newX2 - pos3.x)
+              }
+          }
+
+
           
-          if(((newX-newX1)<=(newX2-newX-rectWidth)) && ((newX-newX1)<=10)){
-            
-            newX = newX1
-          }
-          else if((newX2-newX-rectWidth)<=10){
-            
-            newX = newX2 - rectWidth
-          }
+        
           
           let newY = e.target.y()
-          let newY1 = Math.floor((newY)/gridHeight)*gridHeight
-          let newY2 = Math.ceil((newY+rectHeight)/gridHeight)*gridHeight
-          
-          
-          if(((newY-newY1)<=(newY2-newY-rectHeight)) && ((newY-newY1)<=10)){
-            
-            newY = newY1
+          if(rectRotation>=0 && rectRotation<90){
+              let newY1 = Math.floor(pos1.y/gridHeight)*gridHeight
+              let newY2 = Math.ceil(pos3.y/gridHeight)*gridHeight
+              
+              if(((pos1.y-newY1)<=(newY2-pos3.y)) && ((pos1.y-newY1)<=10)){
+                newY = newY - (pos1.y - newY1)
+              }
+              else if((newY2-pos3.y)<=10){
+                newY = newY + (newY2 - pos3.y)
+              }
           }
-          else if((newY2-newY-rectHeight)<=10){
-            
-            newY = newY2 - rectHeight
+          else if(rectRotation>=90 && rectRotation<180){
+              let newY1 = Math.floor(pos4.y/gridHeight)*gridHeight
+              let newY2 = Math.ceil(pos2.y/gridHeight)*gridHeight
+              if(((pos4.y-newY1)<=(newY2-pos2.y)) && ((pos4.y-newY1)<=10)){
+                newY = newY - (pos4.y - newY1)
+              }
+              else if((newY2-pos2.y)<=10){
+                newY = newY + (newY2 - pos2.y)
+              }
           }
+          else if(rectRotation>=-180 && rectRotation<-90){
+              let newY1 = Math.floor(pos3.y/gridHeight)*gridHeight
+              let newY2 = Math.ceil(pos1.y/gridHeight)*gridHeight
+              if(((pos3.y-newY1)<=(newY2-pos1.y)) && ((pos3.y-newY1)<=10)){
+                newY = newY - (pos3.y - newY1)
+              }
+              else if((newY2-pos1.y)<=10){
+                newY = newY + (newY2 - pos1.y)
+              }
+          }
+          else if(rectRotation>=-90 && rectRotation<0){
+              let newY1 = Math.floor(pos2.y/gridHeight)*gridHeight
+              let newY2 = Math.ceil(pos4.y/gridHeight)*gridHeight
+              if(((pos2.y-newY1)<=(newY2-pos4.y)) && ((pos2.y-newY1)<=10)){
+                newY = newY - (pos2.y - newY1)
+              }
+              else if((newY2-pos4.y)<=10){
+                newY = newY + (newY2 - pos4.y)
+              }
+          }
+         
+          
           onChange({
             ...shapeProps,
             x: newX,
@@ -67,52 +153,115 @@ const Rectangle = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool
           });
         }}
         onTransformEnd={(e) => {
-          
+          console.log(stage.scale)
           const node = shapeRef.current;
           const scaleX = node.scaleX();
           const scaleY = node.scaleY();
           // we will reset it back
           node.scaleX(1);
           node.scaleY(1);
-          const gridWidth = window.innerWidth/5
-          const gridHeight = window.innerHeight/10
+          const gridWidth = window.innerWidth/(5*parseInt(stage))
+          const gridHeight = window.innerHeight/(10*parseInt(stage))
           const rectWidth = node.width() * scaleX
           const rectHeight = node.height() * scaleY
+          const rectRotation = node.rotation()
           
           let newX = e.target.x()
-          // let newX_ = newX+(rectWidth*Math.cos(node.rotation()))
-          let newX1 = Math.floor(newX/gridWidth)*gridWidth
-          let newX2 = Math.ceil((newX+rectWidth)/gridWidth)*gridWidth
+          let pos1 = {x: e.target.x(), y: e.target.y()}
+          let pos2 = rotatePoint({x: pos1.x, y: pos1.y}, node.rotation(), rectWidth)
+          let pos4 = rotatePoint({x: pos1.x, y: pos1.y}, node.rotation() + 90, rectHeight)
+          let pos3 = rotatePoint({x: pos4.x, y: pos4.y}, node.rotation(), rectWidth)
 
-          // console.log(newX)
-          // console.log(newX_)
+          if(rectRotation>=0 && rectRotation<90){
+              let newX1 = Math.floor(pos4.x/gridWidth)*gridWidth
+              let newX2 = Math.ceil(pos2.x/gridWidth)*gridWidth
+              if(((pos4.x-newX1)<=(newX2-pos2.x)) && ((pos4.x-newX1)<=10)){
+                newX = newX - (pos4.x - newX1)
+              }
+              else if((newX2-pos2.x)<=10){
+                newX = newX + (newX2 - pos2.x)
+              }
+          }
+          else if(rectRotation>=90 && rectRotation<180){
+              let newX1 = Math.floor(pos3.x/gridWidth)*gridWidth
+              let newX2 = Math.ceil(pos1.x/gridWidth)*gridWidth
+              if(((pos3.x-newX1)<=(newX2-pos1.x)) && ((pos3.x-newX1)<=10)){
+                newX = newX - (pos3.x - newX1)
+              }
+              else if((newX2-pos1.x)<=10){
+                newX = newX + (newX2 - pos1.x)
+              }
+          }
+          else if(rectRotation>=-180 && rectRotation<-90){
+              let newX1 = Math.floor(pos2.x/gridWidth)*gridWidth
+              let newX2 = Math.ceil(pos4.x/gridWidth)*gridWidth
+              if(((pos2.x-newX1)<=(newX2-pos4.x)) && ((pos2.x-newX1)<=10)){
+                newX = newX - (pos2.x - newX1)
+              }
+              else if((newX2-pos4.x)<=10){
+                newX = newX + (newX2 - pos4.x)
+              }
+          }
+          else if(rectRotation>=-90 && rectRotation<0){
+              let newX1 = Math.floor(pos1.x/gridWidth)*gridWidth
+              let newX2 = Math.ceil(pos3.x/gridWidth)*gridWidth
+              if(((pos1.x-newX1)<=(newX2-pos3.x)) && ((pos1.x-newX1)<=10)){
+                newX = newX - (pos1.x - newX1)
+              }
+              else if((newX2-pos3.x)<=10){
+                newX = newX + (newX2 - pos3.x)
+              }
+          }
 
-          if(((newX-newX1)<=(newX2-newX-rectWidth)) && ((newX-newX1)<=10)){
-            
-            newX = newX1
-          }
-          else if((newX2-newX-rectWidth)<=10){
-            
-            newX = newX2 - rectWidth
-          }
+
+          
+        
           
           let newY = e.target.y()
-          // let newY_ = newY + (rectWidth*Math.sin(node.rotation()))
-          let newY1 = Math.floor((newY)/gridHeight)*gridHeight
-          let newY2 = Math.ceil((newY+rectHeight)/gridHeight)*gridHeight
-
-          
-          // console.log(newY)
-          // console.log(newY_)
-          
-          if(((newY-newY1)<=(newY2-newY-rectHeight)) && ((newY-newY1)<=10)){
-            
-            newY = newY1
+          if(rectRotation>=0 && rectRotation<90){
+              let newY1 = Math.floor(pos1.y/gridHeight)*gridHeight
+              let newY2 = Math.ceil(pos3.y/gridHeight)*gridHeight
+              
+              if(((pos1.y-newY1)<=(newY2-pos3.y)) && ((pos1.y-newY1)<=10)){
+                newY = newY - (pos1.y - newY1)
+              }
+              else if((newY2-pos3.y)<=10){
+                newY = newY + (newY2 - pos3.y)
+              }
           }
-          else if((newY2-newY-rectHeight)<=10){
-            
-            newY = newY2 - rectHeight
+          else if(rectRotation>=90 && rectRotation<180){
+              let newY1 = Math.floor(pos4.y/gridHeight)*gridHeight
+              let newY2 = Math.ceil(pos2.y/gridHeight)*gridHeight
+              if(((pos4.y-newY1)<=(newY2-pos2.y)) && ((pos4.y-newY1)<=10)){
+                newY = newY - (pos4.y - newY1)
+              }
+              else if((newY2-pos2.y)<=10){
+                newY = newY + (newY2 - pos2.y)
+              }
           }
+          else if(rectRotation>=-180 && rectRotation<-90){
+              let newY1 = Math.floor(pos3.y/gridHeight)*gridHeight
+              let newY2 = Math.ceil(pos1.y/gridHeight)*gridHeight
+              if(((pos3.y-newY1)<=(newY2-pos1.y)) && ((pos3.y-newY1)<=10)){
+                newY = newY - (pos3.y - newY1)
+              }
+              else if((newY2-pos1.y)<=10){
+                newY = newY + (newY2 - pos1.y)
+              }
+          }
+          else if(rectRotation>=-90 && rectRotation<0){
+              let newY1 = Math.floor(pos2.y/gridHeight)*gridHeight
+              let newY2 = Math.ceil(pos4.y/gridHeight)*gridHeight
+              if(((pos2.y-newY1)<=(newY2-pos4.y)) && ((pos2.y-newY1)<=10)){
+                newY = newY - (pos2.y - newY1)
+              }
+              else if((newY2-pos4.y)<=10){
+                newY = newY + (newY2 - pos4.y)
+              }
+          }
+         
+          
+         
           // transformer is changing scale of the node
           // and NOT its width or height
           // but in the store we have only width and height
@@ -150,7 +299,7 @@ const Rectangle = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool
 
 
 
-const Circles = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool }) => {
+const Circles = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool, stage }) => {
   const shapeRef = React.useRef();
   const trRef = React.useRef();
 
@@ -173,8 +322,8 @@ const Circles = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool }
         // onDragStart={onMove}
         // onTouchStart={onMove}
         onDragEnd={(e) => {
-          const gridWidth = window.innerWidth/5
-            const gridHeight = window.innerHeight/10
+          const gridWidth = window.innerWidth/(5*parseInt(stage))
+          const gridHeight = window.innerHeight/(10*parseInt(stage))
             const circRadius = shapeProps.radius
             let newX = e.target.x()
             let newX1 = Math.floor((newX-circRadius)/gridWidth)*gridWidth
@@ -217,8 +366,8 @@ const Circles = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool }
           node.scaleX(1);
           node.scaleY(1);
 
-          const gridWidth = window.innerWidth/5
-          const gridHeight = window.innerHeight/10
+          const gridWidth = window.innerWidth/(5*parseInt(stage))
+          const gridHeight = window.innerHeight/(10*parseInt(stage))
           const circRadius = Math.max(node.radius() * scaleX, node.radius() * scaleY)
           let newX = e.target.x()
           let newX1 = Math.floor((newX-circRadius)/gridWidth)*gridWidth
@@ -271,7 +420,7 @@ const Circles = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool }
   );
 };
 
-const Texts = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool }) => {
+const Texts = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool, stage }) => {
   const shapeRef = React.useRef();
   const trRef = React.useRef();
   
@@ -284,7 +433,17 @@ const Texts = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool }) 
   }, [isSelected]);
 
   
+  function rotatePoint(pt, a, l){
+
+    var angle = a * (Math.PI/180); // Convert to radians
   
+    var rotatedX = (pt.x) + (Math.cos(angle) * l);
+  
+    var rotatedY = (pt.y) + (Math.sin(angle) * l);  
+  
+    return {x: rotatedX, y: rotatedY};
+  
+  }
  
 
   return (
@@ -299,37 +458,107 @@ const Texts = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool }) 
         // onDragStart={onMove}
         // onTouchStart={onMove}
         onDragEnd={(e) => {
-          const gridWidth = window.innerWidth/5
-          const gridHeight = window.innerHeight/10
+          const gridWidth = window.innerWidth/(5*parseInt(stage))
+          const gridHeight = window.innerHeight/(10*parseInt(stage))
           const rectWidth = shapeProps.width
           const rectHeight = shapeProps.height
+
+          const rectRotation = shapeProps.rotation
           
           let newX = e.target.x()
-          let newX1 = Math.floor(newX/gridWidth)*gridWidth
-          let newX2 = Math.ceil((newX+rectWidth)/gridWidth)*gridWidth
+          let pos1 = {x: e.target.x(), y: e.target.y()}
+          let pos2 = rotatePoint({x: pos1.x, y: pos1.y}, rectRotation, rectWidth)
+          let pos4 = rotatePoint({x: pos1.x, y: pos1.y}, rectRotation + 90, rectHeight)
+          let pos3 = rotatePoint({x: pos4.x, y: pos4.y}, rectRotation, rectWidth)
+
+          if(rectRotation>=0 && rectRotation<90){
+              let newX1 = Math.floor(pos4.x/gridWidth)*gridWidth
+              let newX2 = Math.ceil(pos2.x/gridWidth)*gridWidth
+              if(((pos4.x-newX1)<=(newX2-pos2.x)) && ((pos4.x-newX1)<=10)){
+                newX = newX - (pos4.x - newX1)
+              }
+              else if((newX2-pos2.x)<=10){
+                newX = newX + (newX2 - pos2.x)
+              }
+          }
+          else if(rectRotation>=90 && rectRotation<180){
+              let newX1 = Math.floor(pos3.x/gridWidth)*gridWidth
+              let newX2 = Math.ceil(pos1.x/gridWidth)*gridWidth
+              if(((pos3.x-newX1)<=(newX2-pos1.x)) && ((pos3.x-newX1)<=10)){
+                newX = newX - (pos3.x - newX1)
+              }
+              else if((newX2-pos1.x)<=10){
+                newX = newX + (newX2 - pos1.x)
+              }
+          }
+          else if(rectRotation>=-180 && rectRotation<-90){
+              let newX1 = Math.floor(pos2.x/gridWidth)*gridWidth
+              let newX2 = Math.ceil(pos4.x/gridWidth)*gridWidth
+              if(((pos2.x-newX1)<=(newX2-pos4.x)) && ((pos2.x-newX1)<=10)){
+                newX = newX - (pos2.x - newX1)
+              }
+              else if((newX2-pos4.x)<=10){
+                newX = newX + (newX2 - pos4.x)
+              }
+          }
+          else if(rectRotation>=-90 && rectRotation<0){
+              let newX1 = Math.floor(pos1.x/gridWidth)*gridWidth
+              let newX2 = Math.ceil(pos3.x/gridWidth)*gridWidth
+              if(((pos1.x-newX1)<=(newX2-pos3.x)) && ((pos1.x-newX1)<=10)){
+                newX = newX - (pos1.x - newX1)
+              }
+              else if((newX2-pos3.x)<=10){
+                newX = newX + (newX2 - pos3.x)
+              }
+          }
+
+
           
-          if(((newX-newX1)<=(newX2-newX-rectWidth)) && ((newX-newX1)<=10)){
-            
-            newX = newX1
-          }
-          else if((newX2-newX-rectWidth)<=10){
-            
-            newX = newX2 - rectWidth
-          }
+        
           
           let newY = e.target.y()
-          let newY1 = Math.floor((newY)/gridHeight)*gridHeight
-          let newY2 = Math.ceil((newY+rectHeight)/gridHeight)*gridHeight
-          
-          
-          if(((newY-newY1)<=(newY2-newY-rectHeight)) && ((newY-newY1)<=10)){
-            
-            newY = newY1
+          if(rectRotation>=0 && rectRotation<90){
+              let newY1 = Math.floor(pos1.y/gridHeight)*gridHeight
+              let newY2 = Math.ceil(pos3.y/gridHeight)*gridHeight
+             
+              if(((pos1.y-newY1)<=(newY2-pos3.y)) && ((pos1.y-newY1)<=10)){
+                newY = newY - (pos1.y - newY1)
+              }
+              else if((newY2-pos3.y)<=10){
+                newY = newY + (newY2 - pos3.y)
+              }
           }
-          else if((newY2-newY-rectHeight)<=10){
-            
-            newY = newY2 - rectHeight
+          else if(rectRotation>=90 && rectRotation<180){
+              let newY1 = Math.floor(pos4.y/gridHeight)*gridHeight
+              let newY2 = Math.ceil(pos2.y/gridHeight)*gridHeight
+              if(((pos4.y-newY1)<=(newY2-pos2.y)) && ((pos4.y-newY1)<=10)){
+                newY = newY - (pos4.y - newY1)
+              }
+              else if((newY2-pos2.y)<=10){
+                newY = newY + (newY2 - pos2.y)
+              }
           }
+          else if(rectRotation>=-180 && rectRotation<-90){
+              let newY1 = Math.floor(pos3.y/gridHeight)*gridHeight
+              let newY2 = Math.ceil(pos1.y/gridHeight)*gridHeight
+              if(((pos3.y-newY1)<=(newY2-pos1.y)) && ((pos3.y-newY1)<=10)){
+                newY = newY - (pos3.y - newY1)
+              }
+              else if((newY2-pos1.y)<=10){
+                newY = newY + (newY2 - pos1.y)
+              }
+          }
+          else if(rectRotation>=-90 && rectRotation<0){
+              let newY1 = Math.floor(pos2.y/gridHeight)*gridHeight
+              let newY2 = Math.ceil(pos4.y/gridHeight)*gridHeight
+              if(((pos2.y-newY1)<=(newY2-pos4.y)) && ((pos2.y-newY1)<=10)){
+                newY = newY - (pos2.y - newY1)
+              }
+              else if((newY2-pos4.y)<=10){
+                newY = newY + (newY2 - pos4.y)
+              }
+          }
+         
           onChange({
             ...shapeProps,
             x: newX,
@@ -348,37 +577,107 @@ const Texts = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool }) 
           // we will reset it back
           node.scaleX(1);
           node.scaleY(1);
-          const gridWidth = window.innerWidth/5
-          const gridHeight = window.innerHeight/10
+          const gridWidth = window.innerWidth/(5*parseInt(stage))
+          const gridHeight = window.innerHeight/(10*parseInt(stage))
           const rectWidth = node.width() * scaleX
           const rectHeight = node.height() * scaleY
           
-          let newX = e.target.x()
-          let newX1 = Math.floor(newX/gridWidth)*gridWidth
-          let newX2 = Math.ceil((newX+rectWidth)/gridWidth)*gridWidth
+          const rectRotation = node.rotation()
           
-          if(((newX-newX1)<=(newX2-newX-rectWidth)) && ((newX-newX1)<=10)){
-            
-            newX = newX1
+          let newX = e.target.x()
+          let pos1 = {x: e.target.x(), y: e.target.y()}
+          let pos2 = rotatePoint({x: pos1.x, y: pos1.y}, node.rotation(), rectWidth)
+          let pos4 = rotatePoint({x: pos1.x, y: pos1.y}, node.rotation() + 90, rectHeight)
+          let pos3 = rotatePoint({x: pos4.x, y: pos4.y}, node.rotation(), rectWidth)
+
+          if(rectRotation>=0 && rectRotation<90){
+              let newX1 = Math.floor(pos4.x/gridWidth)*gridWidth
+              let newX2 = Math.ceil(pos2.x/gridWidth)*gridWidth
+              if(((pos4.x-newX1)<=(newX2-pos2.x)) && ((pos4.x-newX1)<=10)){
+                newX = newX - (pos4.x - newX1)
+              }
+              else if((newX2-pos2.x)<=10){
+                newX = newX + (newX2 - pos2.x)
+              }
           }
-          else if((newX2-newX-rectWidth)<=10){
-            
-            newX = newX2 - rectWidth
+          else if(rectRotation>=90 && rectRotation<180){
+              let newX1 = Math.floor(pos3.x/gridWidth)*gridWidth
+              let newX2 = Math.ceil(pos1.x/gridWidth)*gridWidth
+              if(((pos3.x-newX1)<=(newX2-pos1.x)) && ((pos3.x-newX1)<=10)){
+                newX = newX - (pos3.x - newX1)
+              }
+              else if((newX2-pos1.x)<=10){
+                newX = newX + (newX2 - pos1.x)
+              }
           }
+          else if(rectRotation>=-180 && rectRotation<-90){
+              let newX1 = Math.floor(pos2.x/gridWidth)*gridWidth
+              let newX2 = Math.ceil(pos4.x/gridWidth)*gridWidth
+              if(((pos2.x-newX1)<=(newX2-pos4.x)) && ((pos2.x-newX1)<=10)){
+                newX = newX - (pos2.x - newX1)
+              }
+              else if((newX2-pos4.x)<=10){
+                newX = newX + (newX2 - pos4.x)
+              }
+          }
+          else if(rectRotation>=-90 && rectRotation<0){
+              let newX1 = Math.floor(pos1.x/gridWidth)*gridWidth
+              let newX2 = Math.ceil(pos3.x/gridWidth)*gridWidth
+              if(((pos1.x-newX1)<=(newX2-pos3.x)) && ((pos1.x-newX1)<=10)){
+                newX = newX - (pos1.x - newX1)
+              }
+              else if((newX2-pos3.x)<=10){
+                newX = newX + (newX2 - pos3.x)
+              }
+          }
+
+
+          
+        
           
           let newY = e.target.y()
-          let newY1 = Math.floor((newY)/gridHeight)*gridHeight
-          let newY2 = Math.ceil((newY+rectHeight)/gridHeight)*gridHeight
-          
-          
-          if(((newY-newY1)<=(newY2-newY-rectHeight)) && ((newY-newY1)<=10)){
-            
-            newY = newY1
+          if(rectRotation>=0 && rectRotation<90){
+              let newY1 = Math.floor(pos1.y/gridHeight)*gridHeight
+              let newY2 = Math.ceil(pos3.y/gridHeight)*gridHeight
+              
+              if(((pos1.y-newY1)<=(newY2-pos3.y)) && ((pos1.y-newY1)<=10)){
+                newY = newY - (pos1.y - newY1)
+              }
+              else if((newY2-pos3.y)<=10){
+                newY = newY + (newY2 - pos3.y)
+              }
           }
-          else if((newY2-newY-rectHeight)<=10){
-            
-            newY = newY2 - rectHeight
+          else if(rectRotation>=90 && rectRotation<180){
+              let newY1 = Math.floor(pos4.y/gridHeight)*gridHeight
+              let newY2 = Math.ceil(pos2.y/gridHeight)*gridHeight
+              if(((pos4.y-newY1)<=(newY2-pos2.y)) && ((pos4.y-newY1)<=10)){
+                newY = newY - (pos4.y - newY1)
+              }
+              else if((newY2-pos2.y)<=10){
+                newY = newY + (newY2 - pos2.y)
+              }
           }
+          else if(rectRotation>=-180 && rectRotation<-90){
+              let newY1 = Math.floor(pos3.y/gridHeight)*gridHeight
+              let newY2 = Math.ceil(pos1.y/gridHeight)*gridHeight
+              if(((pos3.y-newY1)<=(newY2-pos1.y)) && ((pos3.y-newY1)<=10)){
+                newY = newY - (pos3.y - newY1)
+              }
+              else if((newY2-pos1.y)<=10){
+                newY = newY + (newY2 - pos1.y)
+              }
+          }
+          else if(rectRotation>=-90 && rectRotation<0){
+              let newY1 = Math.floor(pos2.y/gridHeight)*gridHeight
+              let newY2 = Math.ceil(pos4.y/gridHeight)*gridHeight
+              if(((pos2.y-newY1)<=(newY2-pos4.y)) && ((pos2.y-newY1)<=10)){
+                newY = newY - (pos2.y - newY1)
+              }
+              else if((newY2-pos4.y)<=10){
+                newY = newY + (newY2 - pos4.y)
+              }
+          }
+         
           onChange({
             ...shapeProps,
             x: newX,
@@ -506,7 +805,8 @@ let historyStep = 0;
 
 
 export default function App() {
-  
+  const [scale, setScale] = useState(1);
+  const [stage, setStage] = useState({x: 0, y: 0})
   const [shapes, setShapes] = useState([]);
   const [selectedId, selectShape] = useState(null);
   const [textEdit, setTextEdit] = useState(false)
@@ -516,11 +816,7 @@ export default function App() {
   const isDrawing = React.useRef(false);
   const [useTool, setUseTool] = useState(false)
   const [handleDraw, setHandleDraw] = useState(false)
-  const [stage, setStage] = useState({
-    scale: 1,
-    x: 0,
-    y: 0
-  });
+  
 
   const handleWheel = (e) => {
     e.evt.preventDefault();
@@ -540,20 +836,14 @@ export default function App() {
     // console.log(newX, newY)
     // console.log(e.evt.deltaY)
     if((newScale<1 || newX>=0 || newY>=0)){
-      setStage({
-        scale: 1,
-        x: 0,
-        y: 0
-      });
+      setScale(1);
+      setStage({x: 0, y: 0})
       gridLines(5, 10)
     }
     else{
-      setStage({
-        scale: newScale,
-        x: newX,
-        y: newY
-      });
-      gridLines(10*parseInt(newScale), 20*parseInt(newScale))
+      setScale(newScale);
+      setStage({x: newX, y: newY})
+      gridLines(5*parseInt(newScale), 10*parseInt(newScale))
     }
     
   };
@@ -730,7 +1020,6 @@ export default function App() {
   return (
     <>
     <Stage 
-        
         width={window.innerWidth} 
         height={window.innerHeight} 
         ref={stageRef} 
@@ -741,10 +1030,10 @@ export default function App() {
         onTouchMove={handleMouseMove}
         onMouseup={handleMouseUp}
         onWheel={handleWheel}
-      scaleX={stage.scale}
-      scaleY={stage.scale}
-      x={stage.x}
-      y={stage.y}
+        scaleX={scale}
+        scaleY={scale}
+        x={stage.x}
+        y={stage.y}
       >
       <Layer>
         
@@ -797,6 +1086,7 @@ export default function App() {
                 setShapes(rects);
               }}
               useTool={useTool}
+              stage={scale}
             />
             )
         }
@@ -822,6 +1112,7 @@ export default function App() {
               historyStep += 1;
             }}
             useTool={useTool}
+            stage={scale}
           />
         )
         }
@@ -849,6 +1140,7 @@ export default function App() {
                 historyStep += 1;
               }}
               useTool={useTool}
+              stage={scale}
             />
           )
         }
@@ -906,8 +1198,8 @@ export default function App() {
           // onTap={()=>setUseTool(false)}
           // onDragStart={()=>setUseTool(false)}
           onDragEnd={(e) => {
-            const gridWidth = window.innerWidth/5
-            const gridHeight = window.innerHeight/10
+            const gridWidth = window.innerWidth/(5*parseInt(scale))
+            const gridHeight = window.innerHeight/(10*parseInt(scale))
             const circRadius = 25
             let newX = e.target.x()
             let newX1 = Math.floor((newX-circRadius)/gridWidth)*gridWidth
@@ -974,8 +1266,9 @@ export default function App() {
         // onTap={()=>setUseTool(false)}
         // onDragStart={()=>setUseTool(false)}
         onDragEnd={(e) => {
-            const gridWidth = window.innerWidth/5
-            const gridHeight = window.innerHeight/10
+            
+            const gridWidth = window.innerWidth/(5*parseInt(scale))
+            const gridHeight = window.innerHeight/(10*parseInt(scale))
             const rectWidth = 50
             const rectHeight = 50
 
@@ -1042,8 +1335,8 @@ export default function App() {
           // onTap={()=>setUseTool(false)}
           // onDragStart={()=>setUseTool(false)}
           onDragEnd={(e) => {
-            const gridWidth = window.innerWidth/5
-            const gridHeight = window.innerHeight/10
+            const gridWidth = window.innerWidth/(5*parseInt(scale))
+            const gridHeight = window.innerHeight/(10*parseInt(scale))
             const rectWidth = 40
             const rectHeight = 100
 
@@ -1073,7 +1366,7 @@ export default function App() {
             // push new circle to view
             // note that we must push circle first before returning draggable circle
             // because e.target.x returns draggable circle's positions
-            const pos = { x: newX, y: newY, id: uuid(), text: "T", width: 40, textEditVisible:true, height:100, fontSize: 50, name:"text"}
+            const pos = { x: newX, y: newY, id: uuid(), text: "T", width: 40, textEditVisible:true, height:100, fontSize: 50, name:"text", rotation: 0}
             setShapes((prevTexts) => [
               ...prevTexts,
               pos
