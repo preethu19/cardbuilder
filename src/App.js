@@ -1,9 +1,11 @@
 import "./App.css";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Stage, Layer, Circle, Text, Ellipse, Rect, Transformer, Line, Group } from "react-konva";
+import { Stage, Layer, Circle, Text, Ellipse, Rect, Transformer, Line, Group, Image, Label, Tag } from "react-konva";
 import { v4 as uuid } from 'uuid';
 import { Html } from "react-konva-utils";
+import useImage from 'use-image';
+import img1 from './btn-removebg-preview.png'
 
 
 const Rectangle = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool, stage }) => {
@@ -18,6 +20,10 @@ const Rectangle = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool
     }
   }, [isSelected]);
 
+  if(!global.setTimeOut){
+  global.setTimeOut = function() {};
+}
+
   function rotatePoint(pt, a, l){
 
     var angle = a * (Math.PI/180); // Convert to radians
@@ -31,6 +37,7 @@ const Rectangle = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool
   }
 
   
+  
 
   return (
     <React.Fragment>
@@ -42,7 +49,116 @@ const Rectangle = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool
         draggable={!useTool && isSelected}
         // onDragStart={onMove}
         // onTouchStart={onMove}
-        onDragMove={console.log(shapeProps.x, shapeProps.y)}
+        // onDragMove={(e) => {
+          
+        //   const gridWidth = window.innerWidth/(5*parseInt(stage))
+        //   const gridHeight = window.innerHeight/(10*parseInt(stage))
+        //   const rectWidth = shapeProps.width
+        //   const rectHeight = shapeProps.height
+        //   const rectRotation = shapeProps.rotation
+          
+        //   let newX = e.target.x()
+        //   let pos1 = {x: e.target.x(), y: e.target.y()}
+        //   let pos2 = rotatePoint({x: pos1.x, y: pos1.y}, rectRotation, rectWidth)
+        //   let pos4 = rotatePoint({x: pos1.x, y: pos1.y}, rectRotation + 90, rectHeight)
+        //   let pos3 = rotatePoint({x: pos4.x, y: pos4.y}, rectRotation, rectWidth)
+
+        //   if(rectRotation>=0 && rectRotation<90){
+        //       let newX1 = Math.floor(pos4.x/gridWidth)*gridWidth
+        //       let newX2 = Math.ceil(pos2.x/gridWidth)*gridWidth
+        //       if(((pos4.x-newX1)<=(newX2-pos2.x)) && ((pos4.x-newX1)<=10)){
+        //         newX = newX - (pos4.x - newX1)
+        //       }
+        //       else if((newX2-pos2.x)<=10){
+        //         newX = newX + (newX2 - pos2.x)
+        //       }
+        //   }
+        //   else if(rectRotation>=90 && rectRotation<180){
+        //       let newX1 = Math.floor(pos3.x/gridWidth)*gridWidth
+        //       let newX2 = Math.ceil(pos1.x/gridWidth)*gridWidth
+        //       if(((pos3.x-newX1)<=(newX2-pos1.x)) && ((pos3.x-newX1)<=10)){
+        //         newX = newX - (pos3.x - newX1)
+        //       }
+        //       else if((newX2-pos1.x)<=10){
+        //         newX = newX + (newX2 - pos1.x)
+        //       }
+        //   }
+        //   else if(rectRotation>=-180 && rectRotation<-90){
+        //       let newX1 = Math.floor(pos2.x/gridWidth)*gridWidth
+        //       let newX2 = Math.ceil(pos4.x/gridWidth)*gridWidth
+        //       if(((pos2.x-newX1)<=(newX2-pos4.x)) && ((pos2.x-newX1)<=10)){
+        //         newX = newX - (pos2.x - newX1)
+        //       }
+        //       else if((newX2-pos4.x)<=10){
+        //         newX = newX + (newX2 - pos4.x)
+        //       }
+        //   }
+        //   else if(rectRotation>=-90 && rectRotation<0){
+        //       let newX1 = Math.floor(pos1.x/gridWidth)*gridWidth
+        //       let newX2 = Math.ceil(pos3.x/gridWidth)*gridWidth
+        //       if(((pos1.x-newX1)<=(newX2-pos3.x)) && ((pos1.x-newX1)<=10)){
+        //         newX = newX - (pos1.x - newX1)
+        //       }
+        //       else if((newX2-pos3.x)<=10){
+        //         newX = newX + (newX2 - pos3.x)
+        //       }
+        //   }
+
+          
+        
+          
+        //   let newY = e.target.y()
+        //   if(rectRotation>=0 && rectRotation<90){
+        //       let newY1 = Math.floor(pos1.y/gridHeight)*gridHeight
+        //       let newY2 = Math.ceil(pos3.y/gridHeight)*gridHeight
+              
+        //       if(((pos1.y-newY1)<=(newY2-pos3.y)) && ((pos1.y-newY1)<=10)){
+        //         newY = newY - (pos1.y - newY1)
+        //       }
+        //       else if((newY2-pos3.y)<=10){
+        //         newY = newY + (newY2 - pos3.y)
+        //       }
+        //   }
+        //   else if(rectRotation>=90 && rectRotation<180){
+        //       let newY1 = Math.floor(pos4.y/gridHeight)*gridHeight
+        //       let newY2 = Math.ceil(pos2.y/gridHeight)*gridHeight
+        //       if(((pos4.y-newY1)<=(newY2-pos2.y)) && ((pos4.y-newY1)<=10)){
+        //         newY = newY - (pos4.y - newY1)
+        //       }
+        //       else if((newY2-pos2.y)<=10){
+        //         newY = newY + (newY2 - pos2.y)
+        //       }
+        //   }
+        //   else if(rectRotation>=-180 && rectRotation<-90){
+        //       let newY1 = Math.floor(pos3.y/gridHeight)*gridHeight
+        //       let newY2 = Math.ceil(pos1.y/gridHeight)*gridHeight
+        //       if(((pos3.y-newY1)<=(newY2-pos1.y)) && ((pos3.y-newY1)<=10)){
+        //         newY = newY - (pos3.y - newY1)
+        //       }
+        //       else if((newY2-pos1.y)<=10){
+        //         newY = newY + (newY2 - pos1.y)
+        //       }
+        //   }
+        //   else if(rectRotation>=-90 && rectRotation<0){
+        //       let newY1 = Math.floor(pos2.y/gridHeight)*gridHeight
+        //       let newY2 = Math.ceil(pos4.y/gridHeight)*gridHeight
+        //       if(((pos2.y-newY1)<=(newY2-pos4.y)) && ((pos2.y-newY1)<=10)){
+        //         newY = newY - (pos2.y - newY1)
+        //       }
+        //       else if((newY2-pos4.y)<=10){
+        //         newY = newY + (newY2 - pos4.y)
+        //       }
+        //   }
+         
+          
+        //   onChange({
+        //     ...shapeProps,
+        //     x: newX,
+        //     y: newY
+        //   });
+          
+        // }}
+        
         onDragEnd={(e) => {
           
           const gridWidth = window.innerWidth/(5*parseInt(stage))
@@ -153,7 +269,7 @@ const Rectangle = ({ shapeProps, isSelected, onSelect, onMove, onChange, useTool
           });
         }}
         onTransformEnd={(e) => {
-          console.log(stage.scale)
+          
           const node = shapeRef.current;
           const scaleX = node.scaleX();
           const scaleY = node.scaleY();
@@ -797,6 +913,17 @@ const Lines = ({ shapeProps, isSelected, onSelect, onMove, onChange, points, too
   );
 };
 
+// const LionImage = ({x, y, drag}) => {
+//   // const [image] = useImage('https://i.ibb.co/x7yQHhH/btn-removebg-preview.png');
+//   const [image] = useImage('https://i.ibb.co/GVhhPgM/btn1-removebg-preview.png');
+//   return <Image
+//     draggable={drag}
+//    image={image}
+//    x={x}
+//    y={y}
+//     />;
+// };
+
 
 let history = [{shapes: [], lines:[]}]
 let historyStep = 0;
@@ -1035,7 +1162,10 @@ export default function App() {
         x={stage.x}
         y={stage.y}
       >
-      <Layer>
+      <Layer
+       height={window.innerHeight}
+       width={window.innerWidth}
+      >
         
         
        
@@ -1173,13 +1303,49 @@ export default function App() {
           )
          
         }
+        else if(eachShape.name=="button"){
+          return(
+            <Label
+                      
+            x={eachShape.x}
+            y={eachShape.y}
+            onClick={()=>alert('clicked')}
+            >
+
+            <Tag
+                fill={'#6200ee'}
+
+                fontFamily={'Calibri'}
+                fontSize={18}
+                padding={5}
+                
+                lineJoin={'round'}
+                shadowColor={'black'}
+                shadowBlur={10}
+                shadowOffset={10}
+                shadowOpacity={0.5}
+                cornerRadius={5}                                   
+              />    
+            <Text
+
+                    text={"BUTTON"}
+                    fontFamily={'Calibri'}
+                    fontSize={18}
+                    padding={10}
+                    width={eachShape.width}
+                    height={eachShape.height}
+                    fill={'white'}
+                    align={'center'}
+                    verticalAlign={'middle'}
+            />                  
+            </Label> 
+          )
+        }
       })
       }
       
-        
-      
         <Circle
-          name="draggableCircle1"
+          
           x={50}
           y={70}
           radius={25}
@@ -1265,6 +1431,7 @@ export default function App() {
         // onClick={()=>setUseTool(false)}
         // onTap={()=>setUseTool(false)}
         // onDragStart={()=>setUseTool(false)}
+       
         onDragEnd={(e) => {
             
             const gridWidth = window.innerWidth/(5*parseInt(scale))
@@ -1382,12 +1549,133 @@ export default function App() {
             historyStep += 1;
           }}
       />
+      
+      <Label
+                      
+      x={10}
+      y={210}
+      onClick={()=>alert('clicked')}
+      >
+
+      <Tag
+          fill={'#6200ee'}
+
+          fontFamily={'Calibri'}
+          fontSize={18}
+          padding={5}
+          
+          lineJoin={'round'}
+          shadowColor={'black'}
+          shadowBlur={10}
+          shadowOffset={10}
+          shadowOpacity={0.5}
+          cornerRadius={5}                                   
+        />    
+      <Text
+
+              text={"BUTTON"}
+              fontFamily={'Calibri'}
+              fontSize={18}
+              padding={10}
+              width={100}
+              height={40}
+              fill={'white'}
+              align={'center'}
+              verticalAlign={'middle'}
+      />                  
+      </Label> 
+    <Label
+      name="draggableButton"
+      draggable={!useTool}
+      x={10}
+      y={210}
+      
+      onDragEnd={(e) => {
+            const gridWidth = window.innerWidth/(5*parseInt(scale))
+            const gridHeight = window.innerHeight/(10*parseInt(scale))
+            const rectWidth = 100
+            const rectHeight = 40
+
+            let newX = e.target.x()
+            let newX1 = Math.floor(newX/gridWidth)*gridWidth
+            let newX2 = Math.ceil((newX+rectWidth)/gridWidth)*gridWidth
+            console.log(newX1, newX, newX2)
+            if(((newX-newX1)<=(newX2-newX-rectWidth)) && ((newX-newX1)<=10)){
+              newX = newX1
+            }
+            else if((newX2-newX-rectWidth)<=10){
+              newX = newX2 - rectWidth
+            }
+            
+            let newY = e.target.y()
+            let newY1 = Math.floor((newY)/gridHeight)*gridHeight
+            let newY2 = Math.ceil((newY+rectHeight)/gridHeight)*gridHeight
+            
+            console.log(newY1, newY, newY2)
+            if(((newY-newY1)<=(newY2-newY-rectHeight)) && ((newY-newY1)<=10)){
+              newY = newY1
+            }
+            else if((newY2-newY-rectHeight)<=10){
+              newY = newY2 - rectHeight
+            }
+           
+            // push new circle to view
+            // note that we must push circle first before returning draggable circle
+            // because e.target.x returns draggable circle's positions
+            const pos = { x: newX, y: newY, id: uuid(), width: 100, height: 40, name:"button", rotation: 0}
+            setShapes((prevTexts) => [
+              ...prevTexts,
+              pos
+            ]);
+
+            // return draggable circle to original position
+            // notice the dot (.) before "draggableCircle"
+            var stage = stageRef.current;
+            var draggableText = stage.findOne(".draggableButton");
+            draggableText.position({ x: 10, y: 210 });
+            history = history.slice(0, historyStep + 1);
+            history = history.concat([{shapes: [...shapes, pos], lines:lines}]);
+            historyStep += 1;
+          }}
+      >
+
+      <Tag
+          fill={'#6200ee'}
+
+          fontFamily={'Calibri'}
+          fontSize={18}
+          padding={5}
+          
+          lineJoin={'round'}
+          shadowColor={'black'}
+          shadowBlur={10}
+          shadowOffset={10}
+          shadowOpacity={0.5}
+          cornerRadius={5}                                   
+        />    
+      <Text
+
+              text={"BUTTON"}
+              fontFamily={'Calibri'}
+              fontSize={18}
+              padding={10}
+              width={100}
+              height={40}
+              fill={'white'}
+              align={'center'}
+              verticalAlign={'middle'}
+      />                  
+      </Label> 
+      
+      
      <Html>
         <div>
         <input type="button" value="Undo" onClick={handleUndo}/>
         <input type="button" value="Redo" onClick={handleRedo} />
         <input type="button" value="Save" onClick={handleSave} />
+
         <br />
+        
         <input type="button" value="Pencil" style={tool=='pen' && useTool?{backgroundColor: "aqua"}:null} onClick={()=>{setTool('pen'); setUseTool(!useTool)}}/>
         {/* <input type="button" value="Eraser" style={tool=='eraser' && useTool?{backgroundColor: "aqua"}:null} onClick={()=>{setTool('eraser'); setUseTool(!useTool)}} /> */}
         </div>
@@ -1396,9 +1684,14 @@ export default function App() {
           :null
         }
      </Html>
-        </Layer>
+     </Layer>
+       
     </Stage>
-    
+    {/* <div style={{position: "fixed", top: 0, left: 0, zIndex: 100, width: window.innerWidth, height: window.innerHeight}}>
+        <button>Drag Me</button>
+        <p>Welcome to this page</p>
+        <p>This is section to drag and drop buttons</p>
+    </div> */}
     
     </>
   );
